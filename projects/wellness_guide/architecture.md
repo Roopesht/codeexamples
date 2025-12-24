@@ -127,107 +127,124 @@ sequenceDiagram
 ## 5. Service Layer Architecture
 
 ```mermaid
-graph TB
-    subgraph Presentation[Presentation Layer]
-        Components[React Components<br/>GoalInput, RecList, Timer, etc.]
-    end
+graph TD
+    UI["Presentation Layer<br/>React Components"]
     
-    subgraph Service[Service Layer]
-        llmService[llmService.js<br/>• getRecommendations]
-        storageService[storageService.js<br/>• saveRoutine<br/>• loadRoutine]
-        yogasanaService[yogasanaService.js<br/>• loadMasterData<br/>• getYogasanaById]
-    end
+    UI --> GoalInputComp["GoalInput"]
+    UI --> RecListComp["RecommendationList"]
+    UI --> RoutineFormComp["RoutineForm"]
+    UI --> PracticeComp["PracticeSession"]
+    UI --> TimerComp["Timer"]
     
-    subgraph Data[Data Layer]
-        localStorage[(localStorage<br/>wellness_routine)]
-        yogasanaJSON[(yogasanas.json<br/>Master Data)]
-    end
+    GoalInputComp --> LLMService["llmService.js"]
+    RecListComp --> YogaService["yogasanaService.js"]
+    RoutineFormComp --> StorageService["storageService.js"]
+    PracticeComp --> YogaService
+    PracticeComp --> StorageService
     
-    Components --> llmService
-    Components --> storageService
-    Components --> yogasanaService
+    LLMService --> GeminiAPI["Google Gemini API"]
+    StorageService --> LocalStorage["localStorage"]
+    YogaService --> JSONData["yogasanas.json"]
     
-    llmService -.->|HTTP| GeminiAPI[Gemini API]
-    storageService --> localStorage
-    yogasanaService --> yogasanaJSON
+    classDef uiStyle fill:#61DAFB,stroke:#333,stroke-width:2px
+    classDef serviceStyle fill:#98FB98,stroke:#333,stroke-width:2px
+    classDef dataStyle fill:#FFB6C1,stroke:#333,stroke-width:2px
     
-    style Presentation fill:#e1f5ff
-    style Service fill:#fff9e1
-    style Data fill:#e8f5e9
+    class UI,GoalInputComp,RecListComp,RoutineFormComp,PracticeComp,TimerComp uiStyle
+    class LLMService,StorageService,YogaService serviceStyle
+    class GeminiAPI,LocalStorage,JSONData dataStyle
 ```
 
 ## 6. State Management
 
 ```mermaid
 graph TD
-    subgraph AppState[App Component State]
-        mode["mode: 'configure' | 'practice'"]
-        masterData["yogasanaMasterData: []"]
-    end
+    AppState["App Component<br/>mode, yogasanas"]
     
-    subgraph ConfigureState[Configure Components State]
-        userGoal["userGoal: string"]
-        recommended["recommended: []"]
-        selected["selected: []"]
-    end
+    AppState --> ConfigState["Configure Components<br/>recommendations, selectedYogasanas"]
+    AppState --> PracticeState["Practice Components<br/>routine, currentIndex"]
     
-    subgraph PracticeState[Practice Components State]
-        routine["routine: object"]
-        currentIndex["currentIndex: number"]
-        timeRemaining["timeRemaining: number"]
-    end
+    ConfigState --> GoalState["GoalInput<br/>goalText, isLoading, error"]
+    ConfigState --> RecState["RecommendationList<br/>selectedIds"]
+    ConfigState --> FormState["RoutineForm<br/>durations, error, successMessage"]
     
-    AppState --> ConfigureState
-    AppState --> PracticeState
+    PracticeState --> SessionState["PracticeSession<br/>routine, currentIndex, isComplete"]
+    PracticeState --> TimerState["Timer<br/>timeRemaining"]
     
-    style AppState fill:#4a90e2,color:#fff
-    style ConfigureState fill:#e1f5ff
-    style PracticeState fill:#fff4e1
+    FormState --> LS["localStorage<br/>wellness_routine"]
+    SessionState --> LS
+    
+    classDef appStyle fill:#4a90e2,color:#fff,stroke:#333,stroke-width:3px
+    classDef flowStyle fill:#e1f5ff,stroke:#333,stroke-width:2px
+    classDef compStyle fill:#fff4e1,stroke:#333,stroke-width:2px
+    classDef storageStyle fill:#d4edda,stroke:#333,stroke-width:2px
+    
+    class AppState appStyle
+    class ConfigState,GoalState,RecState,FormState flowStyle
+    class PracticeState,SessionState,TimerState compStyle
+    class LS storageStyle
 ```
 
 ## 7. Timer Logic
 
 ```mermaid
-flowchart TD
-    Start([Timer Starts]) --> Initialize[Set timeRemaining = duration]
-    Initialize --> Interval[Start setInterval every 1s]
+graph TD
+    Start["Timer Component Mounts"] --> InitTime["Initialize timeRemaining<br/>from durationSeconds prop"]
+    InitTime --> CreateInterval["Create setInterval<br/>1000ms interval"]
+    CreateInterval --> Decrement["Decrement timeRemaining<br/>by 1 second"]
+    Decrement --> CheckZero{"timeRemaining<br/>== 0?"}
+    CheckZero -->|No| FormatTime["Format as MM:SS<br/>Display to user"]
+    FormatTime --> Decrement
+    CheckZero -->|Yes| CallComplete["Call onComplete<br/>callback"]
+    CallComplete --> ClearInterval["Clear interval"]
+    ClearInterval --> End["Timer Ends"]
     
-    Interval --> Decrement[timeRemaining = timeRemaining - 1]
-    Decrement --> UpdateUI[Update display MM:SS]
-    UpdateUI --> CheckZero{timeRemaining = 0?}
+    ManualSkip["User Clicks Next"] --> CallComplete
+    PropChange["durationSeconds<br/>prop changes"] --> InitTime
     
-    CheckZero -->|No| Interval
-    CheckZero -->|Yes| CallComplete[Call onComplete callback]
-    CallComplete --> ClearInterval[Clear interval]
-    ClearInterval --> End([Timer Complete])
+    classDef startStyle fill:#98FB98,stroke:#333,stroke-width:2px
+    classDef processStyle fill:#87CEEB,stroke:#333,stroke-width:2px
+    classDef endStyle fill:#FFB6C1,stroke:#333,stroke-width:2px
+    classDef userStyle fill:#FFD700,stroke:#333,stroke-width:2px
     
-    User[User clicks Next] -.->|Manual skip| CallComplete
-    
-    style Start fill:#d4edda
-    style End fill:#d4edda
-    style CallComplete fill:#fff3cd
+    class Start,InitTime,PropChange startStyle
+    class CreateInterval,Decrement,FormatTime,CheckZero processStyle
+    class CallComplete,ClearInterval,End endStyle
+    class ManualSkip userStyle
 ```
 
 ## 8. Error Handling Flow
 
 ```mermaid
-flowchart TD
-    UserAction[User Action] --> Validate{Validate Input}
+graph TD
+    UserAction["User Action"] --> ValidateInput["Validate Input"]
+    ValidateInput --> InputValid{"Input Valid?"}
     
-    Validate -->|Invalid| ShowError[Show error message<br/>below input]
-    ShowError --> Prevent[Prevent submission]
+    InputValid -->|No| ShowError["Display Error Message<br/>Below Input"]
+    ShowError --> WaitFix["Wait for User<br/>to Fix Input"]
+    WaitFix --> UserAction
     
-    Validate -->|Valid| CallService[Call Service Function]
-    CallService --> ServiceResult{Service Result}
+    InputValid -->|Yes| APICall["Make API Call<br/>or Service Call"]
+    APICall --> TryCatch["Try-Catch Block"]
     
-    ServiceResult -->|Success| UpdateUI[Update UI<br/>Show data]
-    ServiceResult -->|Error| HandleError[Show error message<br/>Log to console<br/>Provide fallback]
+    TryCatch --> Success{"Success?"}
+    Success -->|Yes| ProcessData["Process Response"]
+    ProcessData --> UpdateUI["Update UI State"]
+    UpdateUI --> ShowSuccess["Show Success Message"]
     
-    UpdateUI --> Done([Complete])
-    HandleError --> AllowRetry[Allow user to retry]
+    Success -->|No| CatchError["Catch Error"]
+    CatchError --> LogError["Console.log Error"]
+    LogError --> ShowAPIError["Display User-Friendly<br/>Error Message"]
+    ShowAPIError --> AllowRetry["Allow User to Retry"]
+    AllowRetry --> UserAction
     
-    style ShowError fill:#f8d7da
-    style HandleError fill:#f8d7da
-    style UpdateUI fill:#d4edda
-    style Done fill:#d4edda
+    classDef userStyle fill:#FFD700,stroke:#333,stroke-width:2px
+    classDef validateStyle fill:#87CEEB,stroke:#333,stroke-width:2px
+    classDef successStyle fill:#98FB98,stroke:#333,stroke-width:2px
+    classDef errorStyle fill:#FFB6C1,stroke:#333,stroke-width:2px
+    
+    class UserAction,WaitFix,AllowRetry userStyle
+    class ValidateInput,InputValid,APICall,TryCatch,Success validateStyle
+    class ProcessData,UpdateUI,ShowSuccess successStyle
+    class ShowError,CatchError,LogError,ShowAPIError errorStyle
 ```
