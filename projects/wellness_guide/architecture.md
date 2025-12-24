@@ -3,7 +3,7 @@
 ## 1. Application Flow
 
 ```mermaid
-flowchart TD
+graph TD
     Start([User Opens App]) --> ModeSelect{Select Mode}
     ModeSelect -->|Configure| ConfigMode[Configure Mode]
     ModeSelect -->|Practice| PracticeMode[Practice Mode]
@@ -24,39 +24,47 @@ flowchart TD
     MoreYoga -->|Yes| DisplayYoga
     MoreYoga -->|No| Complete([Routine Complete])
     
-    style ConfigMode fill:#e1f5ff
-    style PracticeMode fill:#fff4e1
-    style SaveRoutine fill:#d4edda
-    style Complete fill:#d4edda
+    classDef configStyle fill:#e1f5ff,stroke:#333,stroke-width:2px
+    classDef practiceStyle fill:#fff4e1,stroke:#333,stroke-width:2px
+    classDef successStyle fill:#d4edda,stroke:#333,stroke-width:2px
+    
+    class ConfigMode,EnterGoal,GetRecs,SelectYoga,SetDuration configStyle
+    class PracticeMode,LoadRoutine,DisplayYoga,StartTimer practiceStyle
+    class SaveRoutine,Complete successStyle
 ```
 
 ## 2. Component Structure
 
 ```mermaid
 graph TD
-    App[App Component<br/>• Manages mode state<br/>• Loads master data]
+    App["App Component<br/>Manages mode state<br/>Loads master data"]
     
-    App --> ModeSelector[ModeSelector<br/>Configure / Practice buttons]
+    App --> ModeSelector["ModeSelector<br/>Configure / Practice buttons"]
     
-    App --> ConfigFlow[Configure Flow]
-    App --> PracticeFlow[Practice Flow]
+    App --> ConfigFlow["Configure Flow"]
+    App --> PracticeFlow["Practice Flow"]
     
-    ConfigFlow --> GoalInput[GoalInput<br/>Text input + button]
-    ConfigFlow --> RecList[RecommendationList<br/>Display suggestions]
-    ConfigFlow --> RoutineForm[RoutineForm<br/>Select + set durations]
+    ConfigFlow --> GoalInput["GoalInput<br/>Text input + button"]
+    ConfigFlow --> RecList["RecommendationList<br/>Display suggestions"]
+    ConfigFlow --> RoutineForm["RoutineForm<br/>Select + set durations"]
     
-    PracticeFlow --> PracticeSession[PracticeSession<br/>Display current yogasana]
-    PracticeFlow --> Timer[Timer<br/>Countdown + auto-advance]
+    PracticeFlow --> PracticeSession["PracticeSession<br/>Display current yogasana"]
+    PracticeFlow --> Timer["Timer<br/>Countdown + auto-advance"]
     
-    GoalInput --> YogaCard[YogasanaCard<br/>shared component]
+    GoalInput --> YogaCard["YogasanaCard<br/>shared component"]
     RecList --> YogaCard
     RoutineForm --> YogaCard
     PracticeSession --> YogaCard
     
-    style App fill:#4a90e2,color:#fff
-    style ConfigFlow fill:#e1f5ff
-    style PracticeFlow fill:#fff4e1
-    style YogaCard fill:#f0f0f0
+    classDef appStyle fill:#4a90e2,color:#fff,stroke:#333,stroke-width:3px
+    classDef configStyle fill:#e1f5ff,stroke:#333,stroke-width:2px
+    classDef practiceStyle fill:#fff4e1,stroke:#333,stroke-width:2px
+    classDef sharedStyle fill:#f0f0f0,stroke:#333,stroke-width:2px
+    
+    class App appStyle
+    class ConfigFlow,GoalInput,RecList,RoutineForm configStyle
+    class PracticeFlow,PracticeSession,Timer practiceStyle
+    class YogaCard sharedStyle
 ```
 
 ## 3. Data Flow - Configure Mode
