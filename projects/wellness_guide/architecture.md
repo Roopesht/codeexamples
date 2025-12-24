@@ -4,25 +4,25 @@
 
 ```mermaid
 graph TD
-    Start([User Opens App]) --> ModeSelect{Select Mode}
-    ModeSelect -->|Configure| ConfigMode[Configure Mode]
-    ModeSelect -->|Practice| PracticeMode[Practice Mode]
+    Start["User Opens App"] --> ModeSelect{"Select Mode"}
+    ModeSelect -->|Configure| ConfigMode["Configure Mode"]
+    ModeSelect -->|Practice| PracticeMode["Practice Mode"]
     
-    ConfigMode --> EnterGoal[Enter Wellness Goal]
-    EnterGoal --> GetRecs[Get LLM Recommendations]
-    GetRecs --> SelectYoga[Select Yogasanas]
-    SelectYoga --> SetDuration[Set Durations]
-    SetDuration --> SaveRoutine[Save to localStorage]
-    SaveRoutine --> Done1([Routine Saved])
+    ConfigMode --> EnterGoal["Enter Wellness Goal"]
+    EnterGoal --> GetRecs["Get LLM Recommendations"]
+    GetRecs --> SelectYoga["Select Yogasanas"]
+    SelectYoga --> SetDuration["Set Durations"]
+    SetDuration --> SaveRoutine["Save to localStorage"]
+    SaveRoutine --> Done1["Routine Saved"]
     
-    PracticeMode --> LoadRoutine[Load Saved Routine]
-    LoadRoutine --> DisplayYoga[Display Yogasana]
-    DisplayYoga --> StartTimer[Start Timer]
-    StartTimer --> TimerDone{Timer = 0?}
+    PracticeMode --> LoadRoutine["Load Saved Routine"]
+    LoadRoutine --> DisplayYoga["Display Yogasana"]
+    DisplayYoga --> StartTimer["Start Timer"]
+    StartTimer --> TimerDone{"Timer = 0?"}
     TimerDone -->|No| StartTimer
-    TimerDone -->|Yes| MoreYoga{More Yogasanas?}
+    TimerDone -->|Yes| MoreYoga{"More Yogasanas?"}
     MoreYoga -->|Yes| DisplayYoga
-    MoreYoga -->|No| Complete([Routine Complete])
+    MoreYoga -->|No| Complete["Routine Complete"]
     
     classDef configStyle fill:#e1f5ff,stroke:#333,stroke-width:2px
     classDef practiceStyle fill:#fff4e1,stroke:#333,stroke-width:2px
