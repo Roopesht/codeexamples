@@ -1,0 +1,20 @@
+A puppy is a young dog.
+Kittens are baby cats.
+Elephants are the largest land animals.
+Dolphins are highly intelligent marine mammals.
+Pizza originated in Naples, Italy.
+Sushi is a traditional Japanese dish.
+Tacos are a popular Mexican street food.
+Croissants are a flaky French pastry.
+Python is a popular programming language.
+Neural networks are inspired by the human brain.
+Cloud computing lets you rent servers on demand.
+APIs let different software systems talk to each other.
+Soccer is the world's most popular sport.
+A marathon is 42.2 kilometers long.
+Basketball was invented in 1891.
+Tennis matches are scored in sets and games.
+Hurricanes form over warm ocean water.
+Snow forms when water vapor freezes in clouds.
+A rainbow appears when light passes through water droplets.
+Thunder is caused by rapidly expanding heated air.
